@@ -20,4 +20,15 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('/logout', \App\Http\Controllers\Api\v1\Auth\LogoutController::class)
             ->middleware('auth:sanctum');
     });
+
+    Route::group(['middleware' => 'auth:sanctum'], function () {
+        Route::get('/posts', [\App\Http\Controllers\Api\v1\PostController::class, 'index']);
+        Route::post('/posts', [\App\Http\Controllers\Api\v1\PostController::class, 'store']);
+        Route::delete('/posts/{post}', [\App\Http\Controllers\Api\v1\PostController::class, 'destroy'])
+            ->missing(function () {
+                return response()->json([
+                    'message' => 'Post not found',
+                ]);
+            });
+    });
 });

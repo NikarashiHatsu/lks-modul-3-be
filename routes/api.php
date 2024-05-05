@@ -30,5 +30,22 @@ Route::group(['prefix' => 'v1'], function () {
                     'message' => 'Post not found',
                 ]);
             });
+
+        Route::group(['prefix' => 'user'], function () {
+            Route::post('/{user:username}/follow', \App\Http\Controllers\Api\v1\User\FollowController::class)
+                ->missing(function () {
+                    return response()->json([
+                        'message' => 'User not found',
+                    ]);
+                });
+            Route::delete('/{user:username}/unfollow', \App\Http\Controllers\Api\v1\User\UnfollowController::class)
+                ->missing(function () {
+                    return response()->json([
+                        'message' => 'User not found',
+                    ]);
+                });
+        });
+
+        Route::get('/following', \App\Http\Controllers\Api\v1\FollowingController::class);
     });
 });

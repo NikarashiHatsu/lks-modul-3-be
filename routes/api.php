@@ -44,6 +44,18 @@ Route::group(['prefix' => 'v1'], function () {
                         'message' => 'User not found',
                     ]);
                 });
+            Route::put('/{user:username}/accept', \App\Http\Controllers\Api\v1\User\AcceptController::class)
+                ->missing(function () {
+                    return response()->json([
+                        'message' => 'User not found',
+                    ]);
+                });
+            Route::get('/{user:username}/followers', \App\Http\Controllers\Api\v1\User\FollowerController::class)
+                ->missing(function () {
+                    return response()->json([
+                        'message' => 'User not found',
+                    ]);
+                });
         });
 
         Route::get('/following', \App\Http\Controllers\Api\v1\FollowingController::class);

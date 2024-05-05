@@ -107,4 +107,83 @@ class FollowService
             ->where('following_id', $following->id)
             ->exists();
     }
+
+    /**
+     * Finds the follow relationship where the given user is the follower and the other user is being followed.
+     *
+     * @param  \App\Models\User  $loggedInUser  The user who logged in
+     * @param  \App\Models\User  $follower      The user who is potentially following.
+     * @return \App\Models\Follow|null  Returns the Follow model instance representing the follow relationship if found, otherwise null.
+     */
+    public static function findFollowingRelationship(User $loggedInUser, User $follower): ?Follow
+    {
+        return Follow::query()
+            ->where('follower_id', $follower->id)
+            ->where('following_id', $loggedInUser->id)
+            ->first();
+    }
+
+    /**
+     * Checks if a user is not following another user.
+     *
+     * @param  \App\Models\User  $loggedInUser  The user who logged in
+     * @param  \App\Models\User  $follower      The user who is potentially following.
+     * @return bool  Returns true if the $following user is following the $follower user, otherwise false.
+     */
+    public static function isUserNotFollowing(User $loggedInUser, User $follower): bool
+    {
+        return empty(self::findFollowingRelationship($loggedInUser, $follower));
+    }
+
+    /**
+     * Checks if a follow request between two users has already been accepted.
+     *
+     * @param  \App\Models\User  $loggedInUser  The user who logged in
+     * @param  \App\Models\User  $follower      The user who is potentially following.
+     * @return bool  Returns true if the follow request has already been accepted, otherwise false.
+     */
+    public static function isFollowRequestAlreadyAccepted(User $loggedInUser, User $follower): bool
+    {
+        $following = self::findFollowingRelationship($loggedInUser, $follower);
+
+        return $following?->is_accepted ?? false;
+    }
+
+    /**
+     * Accepts a follow request between two users.
+     *
+     * @param  \App\Models\User  $loggedInUser  The user who logged in
+     * @param  \App\Models\User  $follower      The user who is potentially following.
+     * @return bool  Returns true if the follow request is successfully accepted, otherwise false.
+     */
+    public static function accept(User $loggedInUser, User $follower): bool
+    {
+        $following = self::findFollowingRelationship($loggedInUser, $follower);
+
+        return $following->update([
+            'is_accepted' => true,
+        ]);
+    }
+
+    /**
+     * Retrieves the users who are following the given user.
+     *
+     * @param  \App\Models\User  $user The user whose followers are to be retrieved.
+     * @return \Illuminate\Suppoer\Collection  Returns a collection of users who are following the given user.
+     */
+    public static function followers(User $user): Collection
+    {
+        /** @var \Illuminate\Database\Eloquent\Collection */
+        $followers = $user->followers;
+
+        return $followers
+            ->map(function (Follow $follow) use ($user) {
+                $userData = $follow->follower;
+
+                $userData['is_requested'] = self::isRequested($follow->follower, $user);
+
+                return $userData;
+            })
+            ->values();
+    }
 }

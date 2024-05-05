@@ -18,6 +18,16 @@ class User extends Authenticatable
         return $this->hasMany(Post::class);
     }
 
+    public function followers(): HasMany
+    {
+        return $this->hasMany(Follow::class, 'following_id', 'id');
+    }
+
+    public function followings(): HasMany
+    {
+        return $this->hasMany(Follow::class, 'follower_id', 'id');
+    }
+
     /**
      * The attributes that are mass assignable.
      *

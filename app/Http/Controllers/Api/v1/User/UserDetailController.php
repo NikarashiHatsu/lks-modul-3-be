@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Api\v1\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\Follow;
 use App\Models\User;
 use App\Services\UserService;
-use App\Services\FollowService;
 use Illuminate\Http\Request;
 
 class UserDetailController extends Controller
